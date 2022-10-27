@@ -2,6 +2,6 @@ export class FarenheitThermometer {
     public deviceId = "CF-A";
     
     public getMessure(): number{
-        return 1.0;
+        return Math.floor(Math.random() * 100);
     }
 }

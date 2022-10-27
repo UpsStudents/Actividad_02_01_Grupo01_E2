@@ -2,8 +2,8 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { FixedAsset } from './FixedAsset/FixedAsset';
 import { config } from 'dotenv';
+import { Report } from './entities/report';
 
 config();
 @Module({
@@ -15,8 +15,8 @@ config();
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [FixedAsset],
-      synchronize: true,
+      entities: [Report],
+      synchronize: true
     }),
   ],
   controllers: [AppController],

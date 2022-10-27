@@ -1,41 +1,34 @@
-import { Body, Controller, Get, Post, Redirect, Render } from '@nestjs/common';
+import { Controller, Get, Render } from '@nestjs/common';
 import { AppService } from './app.service';
-import { AssetBuilder } from './Assets/AssetBuilder';
-import { AssetDirector } from './Assets/AssetDirector';
-import { FixedAsset } from './FixedAsset/FixedAsset';
+import { Adapter } from './domain/Adapter';
+import { TemperatureMonitor } from './domain/TemperatureMonitor';
+import { ReportDTO } from './dto/report.dto';
 
 @Controller()
 export class AppController {
-  assets;
-  director: AssetDirector;
-  builder: AssetBuilder;
+  
+  reportsDto: ReportDTO[];
+  monitor: TemperatureMonitor;
+
   constructor(private readonly appService: AppService) {
-    this.director = new AssetDirector();
-    this.builder = new AssetBuilder();
-    this.director.setBuilder(this.builder);
+    this.monitor = new Adapter();
   }
 
   @Get()
   @Render('index')
-  async getAssets() {
-    this.assets = await this.appService.findAll();
-    return { assets: this.assets };
-  }
+  async getLastReports() {
 
-  @Post()
-  @Redirect('/')
-  async createAsset(@Body() body) {
-    switch (body.asset) {
-      case 'computer':
-        this.director.buildComputer();
-        break;
-      case 'table':
-        this.director.buildTable();
-        break;
-      case 'chair':
-        this.director.buildChair();
-        break;
-    }
-    await this.appService.create(this.director.getProduct());
+    this.reportsDto = this.monitor.getTemperatureReport().thermometerReports.map(
+      x => { 
+        return {
+          ingressDate: new Date(),
+          code: x.deviceId,
+          temperature: x.messure,
+          description: x.deviceId
+        }}
+    );
+    this.appService.create(this.reportsDto);
+    let result = await this.appService.findAll();
+    return { reports: result};
   }
 }
